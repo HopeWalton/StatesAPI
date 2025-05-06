@@ -32,7 +32,7 @@ app.use('/states', verifyStates);
 app.use('/states', statesRoutes);
 
 // 404 fallback route
-app.all('*', (req, res) => {
+app.all('/{*any}', (req, res) => {
   res.status(404);
   if (req.accepts('html')) {
     res.sendFile(path.join(__dirname, 'public', '404.html'));
@@ -45,5 +45,5 @@ app.all('*', (req, res) => {
 
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
