@@ -25,9 +25,6 @@ app.use(express.json());
 // Serve static files
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-// Use custom middleware
-app.use('/states', verifyStates);
-
 // Routes for states
 app.use('/states', statesRoutes);
 
