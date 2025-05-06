@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>States API</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to the U.S. States REST API</h1>
+    <p>This API provides information about all U.S. states, including fun facts, and allows CRUD operations via URL parameters and JSON requests.</p>
+
+    <h2>GET Requests</h2>
+    <ul>
+      <li><strong>/states</strong> – Returns all state data</li>
+      <li><strong>/states?contig=true</strong> – Returns only contiguous states (excludes AK and HI)</li>
+      <li><strong>/states?contig=false</strong> – Returns only non-contiguous states (AK and HI)</li>
+      <li><strong>/states/:state</strong> – Returns all data for a specific state by its 2-letter code (e.g., <code>/states/TX</code>)</li>
+      <li><strong>/states/:state/funfact</strong> – Returns a random fun fact for that state</li>
+      <li><strong>/states/:state/capital</strong> – Returns the state’s capital</li>
+      <li><strong>/states/:state/nickname</strong> – Returns the state’s nickname</li>
+      <li><strong>/states/:state/population</strong> – Returns the population</li>
+      <li><strong>/states/:state/admission</strong> – Returns the date the state was admitted to the Union</li>
+    </ul>
+
+    <h2>POST Request</h2>
+    <p><strong>/states/:state/funfact</strong> – Add one or more fun facts to a state</p>
+    <p><strong>Body (JSON):</strong></p>
+    <pre>
+{
+  "funfacts": [
+    "Fact one.",
+    "Fact two."
+  ]
+}
+    </pre>
+
+    <h2>PATCH Request</h2>
+    <p><strong>/states/:state/funfact</strong> – Update a specific fun fact</p>
+    <p><strong>Body (JSON):</strong></p>
+    <pre>
+{
+  "index": 1,
+  "funfact": "Updated fun fact."
+}
+    </pre>
+
+    <h2>DELETE Request</h2>
+    <p><strong>/states/:state/funfact</strong> – Delete a specific fun fact by index</p>
+    <p><strong>Body (JSON):</strong></p>
+    <pre>
+{
+  "index": 2
+}
+    </pre>
+
+    <h2>Notes</h2>
+    <ul>
+      <li>State codes must be entered as 2-letter abbreviations (e.g., CA, NY, TX).</li>
+      <li>Full state names will result in a 404 error.</li>
+      <li>Use tools like Postman or browser URL bar to test GET requests.</li>
+      <li>Use Postman or similar tools to send POST, PATCH, and DELETE requests with JSON bodies.</li>
+    </ul>
+  </div>
+</body>
+</html>
