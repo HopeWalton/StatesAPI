@@ -1,15 +1,17 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const cors = require('cors');
 const path = require('path');
 const mongoose = require('mongoose');
-const verifyStates = require('./middleware/verifyStates');
 const statesRoutes = require('./routes/statesRoutes');
 const connectDB = require('./config/dbConn');
 const PORT = process.env.PORT || 3500;
 
 // Connect to MongoDB
 connectDB();
+
+app.use(cors());
 
 // Log successful or failed DB connection
 mongoose.connection.once('open', () => {
@@ -29,7 +31,7 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 app.use('/states', statesRoutes);
 
 // 404 fallback route
-app.all('/{*any}', (req, res) => {
+app.all(/^\/.*/, (req, res) => {
   res.status(404);
   if (req.accepts('html')) {
     res.sendFile(path.join(__dirname, 'public', '404.html'));

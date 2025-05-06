@@ -78,7 +78,7 @@ const getPopulation = (req, res) => {
     const state = statesData.find(s => s.code === req.code);
     res.json({
         'state': state.state,
-        'population': state.population
+        population: state.population.toLocaleString('en-US')
     });
 };
 
@@ -119,78 +119,76 @@ const getFunfact = async (req, res) => {
   const postFunfact = async (req, res) => {
     const code = req.code;
     const state = statesData.find(s => s.code === code);
-  
     const { funfacts } = req.body;
   
-    if (!funfacts || !Array.isArray(funfacts)) {
-      return res.status(400).json({ message: 'State fun facts value required and must be an array' });
+    // ✅ Check if funfacts is defined at all
+    if (funfacts === undefined) {
+      return res.status(400).json({ message: 'State fun facts value required' });
+    }
+  
+    // ✅ Then check that it's actually an array
+    if (!Array.isArray(funfacts)) {
+      return res.status(400).json({ message: 'State fun facts value must be an array' });
     }
   
     try {
-      // Check if state already exists in MongoDB
       const existingState = await State.findOne({ stateCode: code });
   
       if (existingState) {
-        // Append to existing funfacts array
         existingState.funfacts.push(...funfacts);
         const updated = await existingState.save();
         return res.status(201).json(updated);
       } else {
-        // Create new document
         const newState = await State.create({
           stateCode: code,
           funfacts: funfacts
         });
         return res.status(201).json(newState);
       }
-  
     } catch (err) {
       console.error(err);
       return res.status(500).json({ message: 'Database error' });
     }
   };
+  
 
   const patchFunfact = async (req, res) => {
     const code = req.code;
     const { index, funfact } = req.body;
-
+  
     if (!index) {
-        return res.status(400).json({ message: 'State fun fact index value required' });
-    };
-    
+      return res.status(400).json({ message: 'State fun fact index value required' });
+    }
+  
     if (!funfact) {
-        return res.status(400).json({ message: 'State fun fact value required' });
-    };
-
+      return res.status(400).json({ message: 'State fun fact value required' });
+    }
+  
     try {
-    const mongoState = await State.findOne({ stateCode: code });
-
-    if (!mongoState) {
-      return res.status(404).json({ message: `No Fun Facts found for ${code}` });
+      const mongoState = await State.findOne({ stateCode: code });
+      const stateName = statesData.find(s => s.code === code)?.state;
+  
+      if (!mongoState || !mongoState.funfacts || mongoState.funfacts.length === 0) {
+        return res.status(404).json({ message: `No Fun Facts found for ${stateName}` });
+      }
+  
+      const arrayIndex = index - 1;
+  
+      if (arrayIndex < 0 || arrayIndex >= mongoState.funfacts.length) {
+        return res.status(400).json({ message: `No Fun Fact found at that index for ${stateName}` });
+      }
+  
+      mongoState.funfacts[arrayIndex] = funfact;
+  
+      const updatedDoc = await mongoState.save();
+      res.status(200).json(updatedDoc);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Database error' });
     }
+  };  
 
-    if (!mongoState.funfacts || mongoState.funfacts.length === 0) {
-      return res.status(404).json({ message: `No Fun Facts found for ${code}` });
-    }
-
-    const arrayIndex = index - 1;
-
-    if (arrayIndex < 0 || arrayIndex >= mongoState.funfacts.length) {
-      return res.status(400).json({ message: `No Fun Fact found at that index for ${code}` });
-    }
-
-    mongoState.funfacts[arrayIndex] = funfact;
-
-    const updatedDoc = await mongoState.save();
-    res.status(200).json(updatedDoc);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Database error' });
-  }
-};
-
-const deleteFunfact = async (req, res) => {
+  const deleteFunfact = async (req, res) => {
     const code = req.code;
     const { index } = req.body;
   
@@ -200,15 +198,16 @@ const deleteFunfact = async (req, res) => {
   
     try {
       const mongoState = await State.findOne({ stateCode: code });
+      const stateName = statesData.find(s => s.code === code)?.state;
   
       if (!mongoState || !Array.isArray(mongoState.funfacts) || mongoState.funfacts.length === 0) {
-        return res.status(404).json({ message: `No Fun Facts found for ${code}` });
+        return res.status(404).json({ message: `No Fun Facts found for ${stateName}` });
       }
   
       const arrayIndex = index - 1;
   
       if (arrayIndex < 0 || arrayIndex >= mongoState.funfacts.length) {
-        return res.status(400).json({ message: `No Fun Fact found at that index for ${code}` });
+        return res.status(400).json({ message: `No Fun Fact found at that index for ${stateName}` });
       }
   
       // Remove the specific item at the index
@@ -222,6 +221,7 @@ const deleteFunfact = async (req, res) => {
       res.status(500).json({ message: 'Database error' });
     }
   };
+  
 
 module.exports = {
     getAllStates,
