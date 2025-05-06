@@ -15,10 +15,6 @@ body {
     border-radius: 8px;
   }
   
-  h1 {
-    color: #0055a5;
-  }
-  
   ul {
     list-style: none;
     padding: 0;
@@ -26,7 +22,6 @@ body {
   
   ul li {
     margin-bottom: 0.5rem;
-    background: #e0eafc;
     padding: 0.5rem;
     border-radius: 4px;
   }
