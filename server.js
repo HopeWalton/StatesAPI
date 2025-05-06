@@ -11,28 +11,39 @@ const PORT = process.env.PORT || 3500;
 // Connect to MongoDB
 connectDB();
 
-// middleware for json
+// Log successful or failed DB connection
+mongoose.connection.once('open', () => {
+  console.log('Connected to MongoDB');
+});
+mongoose.connection.on('error', err => {
+  console.error('MongoDB connection error:', err);
+});
+
+// Parse JSON request bodies
 app.use(express.json());
 
-// Landing page
+// Serve static files
 app.use('/', express.static(path.join(__dirname, 'public')));
 
+// Use custom middleware
+app.use('/states', verifyStates);
+
+// Routes for states
 app.use('/states', statesRoutes);
 
-mongoose.connection.once('open', () => {
-    console.log('Connected to mongoDB');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-})
+// 404 fallback route
+app.all('*', (req, res) => {
+  res.status(404);
+  if (req.accepts('html')) {
+    res.sendFile(path.join(__dirname, 'public', '404.html'));
+  } else if (req.accepts('json')) {
+    res.json({ error: '404 Not Found' });
+  } else {
+    res.type('txt').send('404 Not Found');
+  }
+});
 
-app.all('/{*any}', (req, res) => {
-    res.status(404);
-  
-    if (req.accepts('html')) {
-      res.sendFile(path.join(__dirname, 'public', '404.html'));
-    } else if (req.accepts('json')) {
-      res.json({ error: '404 Not Found' });
-    } else {
-      res.type('txt').send('404 Not Found');
-    }
-  });
-  
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
